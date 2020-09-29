@@ -29,37 +29,47 @@ Item {
             if (Cabin_Temp.q_run_system_state) toggleButton.text = qsTr("DỪNG LẠI");
             else toggleButton.text = qsTr("BẮT ĐẦU");
             //
-            //if (bIsAlarm1) statusAlarm01.active = !statusAlarm01.active;
-            //if (bIsAlarm2) statusAlarm01.active = !statusAlarm02.active;
+            if (bIsAlarm1) statusAlarm01.active = !statusAlarm01.active;
+            if (bIsAlarm2) statusAlarm01.active = !statusAlarm02.active;
         }
     }
     //
     property var x_var: 0
-    property var bIsAlarm: false
+    property bool bIsAlarm1: false
+    property bool bIsAlarm2: false
     property bool bIsRun: false
     //
-    Timer {
+    Timer { //ve do thi..
         interval: 1000; running: true; repeat: true
         onTriggered:{
-            x_var ++;
-            //lineSeries.append(x_var, Cabin_Temp.q_);
-            //lineSeries1.append(x_var, 10.5);
-            //lineSeries2.append(x_var, 20.5);
-            //
-            //axisY.max = 10.5 + 5.0;
-            //axisY.min = -2;
-            if (lineSeries.count > axisX.max)
-            {
-                axisX.min = axisX.max;
-                axisX.max = axisX.min + 60;
+            if (bIsRun){
+                x_var ++;
+                lineSeries.append(x_var, Cabin_Temp.q_volt_sensor1_respone);
+                lineSeries1.append(x_var, Cabin_Temp.q_volt_sensor2_respone);
+                lineSeries2.append(x_var, Cabin_Temp.threshold_Temp01);
+                //
+                //axisY.max = 10.5 + 5.0;
+                //axisY.min = -2;
+                if (lineSeries.count > axisX.max)
+                {
+                    axisX.min = axisX.max;
+                    axisX.max = axisX.min + 60;
+                }
+            }
+            else {
+                x_var = 0;
+                //lineSeries.clear(); lineSeries1.clear(); lineSeries2.clear();
+                //axisX.min = 0;
+                //axisX.max = 60;
             }
         }
     }
     //
-    property int nCountTime: 0
+    property int nCountTime1: 0
+    property int nCountTime2: 0
     property bool bIsRunED: false
-    property bool bTimeOut: false
-    Timer {
+    property bool bTimeOut1: false
+    Timer { //process
         id: timeClock
         interval: 1000
         running: true //false
@@ -70,43 +80,92 @@ Item {
             }
             else {
                 bIsRun = false;
+                bIsAlarm1 = false;
+                bIsAlarm2 = false;
+                Cabin_Temp.writeAlarm(0,false);
+                Cabin_Temp.writeAlarm(1,false);
+                statusAlarm01.active = false;
+                statusAlarm02.active = false;
+                Cabin_Temp.write_RunModuleTemp(false);
+                //
+                if (nCountTime > 0) bIsRunED = true;
             }
+            //
             if (bIsRun) {
                 //cho gia nhiet
                 Cabin_Temp.write_RunModuleTemp(true);
                 //reset..
                 if (bIsRunED)  {
-                    nCountTime = 0; bIsRunED = false;
+                    nCountTime1 = 0;  nCountTime2 = 0;
+                    bIsRunED = false;
+                    bTimeOut1 = bTimeOut2 = false;
+                    //
                     lineSeries.clear(); lineSeries1.clear();
                     axisX.min = 0;
                     axisX.max = 60;
-                    x_var = 0;
                     //
-                    bTimeOut = false;
                 }
-                //txtSeconds.text = (nCountTime % 60).toFixed(0)
-                //txtMinutes.text = Math.floor((nCountTime / 60)).toFixed(0)
-                //if (bIsThresholdDensity & !bIsAlarm) //bIsAlarm =true, thi` dung dem time.
-                    nCountTime++;
-                //if (nCountTime > parseInt(txtTimeOut.text)) bTimeOut = true;
-                //else bTimeOut = false;
-                // TimeOut
-//                if (bTimeOut){
-//                    Cabin_Temp.writeStateRunSystem(false);
-//                }
+                //check Thresholds + nCountTime1
+                if ((Cabin_Temp.q_temperature_sensor >= Cabin_Temp.threshold_Temp01) & !bIsAlarm1) {
+                    nCountTime1++;
+                    //
+                    if (Cabin_Temp.q_volt_sensor1_respone >= Cabin_Temp.threshold_baoChay01) {
+                        Cabin_Temp.writeAlarm(0,true);
+                        bIsAlarm1 = true;
+                        //
+                        stack4.clear()
+                        stack4.push("CabinTemp_Result.qml")
+
+                    } else {
+                        Cabin_Temp.writeAlarm(0,false);
+                        statusAlarm01.active = false;
+                        bIsAlarm1 = false;
+                        stack4.clear()
+                    }
+                    //
+                }
+                //check Thresholds + nCountTime2
+                if ((Cabin_Temp.q_temperature_sensor >= Cabin_Temp.threshold_Temp02) & !bIsAlarm2) {
+                    nCountTime2++;
+                    //
+                    if (Cabin_Temp.q_volt_sensor2_respone >= Cabin_Temp.threshold_baoChay02) {
+                        Cabin_Temp.writeAlarm(1,true);
+                        bIsAlarm1 = true;
+                        //
+                        stack5.clear()
+                        stack5.push("CabinTemp_Result.qml")
+
+                    } else {
+                        Cabin_Temp.writeAlarm(1,false);
+                        statusAlarm02.active = false;
+                        bIsAlarm2 = false;
+                        stack5.clear()
+                    }
+                    //
+                }
+                //
+                txt_time_threshold01.text = (nCountTime1 % 60).toFixed(0)
+                txt_time_threshold02.text = (nCountTime2 % 60).toFixed(0)
+                //
+                if (nCountTime1 > Cabin_Temp.threshold_Temp01) bTimeOut1 = true;
+                if (nCountTime2 > Cabin_Temp.threshold_Temp02) bTimeOut2 = true;
+
+                if (bTimeOut1 & bTimeOut2){
+                    Cabin_Temp.writeStateRunSystem(false);
+                }
+            } //bRun
+            else {
+                if (bTimeOut1) {
+                    //cho 02 stack voi ket qua khac nhau cho nhanh./
+                    stack4.clear()
+                    stack4.push("CabinTemp_ResultTimeOut.qml")
+                }
+                if (bTimeOut2) {
+                    stack5.clear()
+                    stack5.push("CabinTemp_ResultTimeOut.qml")
+                }
             }
-            else { //reset
-                //if (nCountTime > 0) bIsRunED = true;
-                Cabin_Temp.write_RunModuleTemp(false);
-                bIsAlarm = false;
-            }
-            //
-//            if (bTimeOut){
-//                stack3.clear()
-//                stack3.push("CabinSmoke_Result.qml")
-//            }
-            //
-            //Cabin_Temp.q_bIsTimeOut = bTimeOut;
+            // no-if-else
         }
     } //end-Timer
 
@@ -771,12 +830,14 @@ Item {
 
                 GroupBox {
                     id: grBox_CBKhoi
+                    height: 222
+                    anchors.right: parent.right
+                    anchors.left: parent.left
+                    anchors.top: parent.top
                     anchors.rightMargin: 249
-                    anchors.bottomMargin: 4
                     anchors.leftMargin: 5
                     anchors.topMargin: 4
                     //flat: false
-                    anchors.fill: parent
                     //title: qsTr("    Cảm biến: Đầu báo khói")
 
                     background: Rectangle {
@@ -1030,9 +1091,12 @@ Item {
                     id: grBox_CBKhoi1
                     x: 9
                     y: -6
+                    anchors.bottom: grBox_CBKhoi.bottom
+                    anchors.bottomMargin: 0
+                    anchors.right: parent.right
+                    anchors.left: parent.left
+                    anchors.top: parent.top
                     anchors.leftMargin: 250
-                    anchors.fill: parent
-                    anchors.bottomMargin: 4
                     GroupBox {
                         id: grBox_Volt_Ample1
                         anchors.leftMargin: -2
@@ -1285,9 +1349,9 @@ Item {
 
                 ChartView {
                     id: spline
-                    anchors.rightMargin: 1
+                    anchors.rightMargin: 0
                     anchors.bottomMargin: 0
-                    anchors.leftMargin: -1
+                    anchors.leftMargin: 0
                     anchors.topMargin: 0
                     anchors.fill: parent
                     ValueAxis {
@@ -1334,6 +1398,22 @@ Item {
                     }
                 }
             }
+        }
+
+        StackView {
+            id: stack4
+            x: 532
+            y: 232
+            width: 185
+            height: 70
+        }
+
+        StackView {
+            id: stack5
+            x: 794
+            y: 232
+            width: 185
+            height: 70
         }
 
 
@@ -2068,9 +2148,23 @@ Item {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 /*##^## Designer {
-    D{i:0;autoSize:true;height:480;width:1024}D{i:72;anchors_x:10}D{i:74;anchors_x:12}
+    D{i:0;autoSize:true;height:480;width:1024}D{i:72;anchors_x:10}D{i:73;anchors_x:12}
+D{i:74;anchors_x:12}D{i:71;anchors_x:10}D{i:80;anchors_height:38;anchors_width:200;anchors_x:0;anchors_y:139}
 D{i:81;anchors_height:38;anchors_width:200;anchors_x:0;anchors_y:139}D{i:89;anchors_x:10}
-D{i:91;anchors_x:12}D{i:99;anchors_height:38;anchors_width:200;anchors_x:0;anchors_y:139}
+D{i:90;anchors_x:12}D{i:91;anchors_x:12}D{i:88;anchors_x:10}D{i:98;anchors_height:38;anchors_width:200;anchors_x:0;anchors_y:139}
+D{i:99;anchors_height:38;anchors_width:200;anchors_x:0;anchors_y:139}
 }
  ##^##*/

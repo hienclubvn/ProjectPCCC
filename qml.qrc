@@ -84,5 +84,7 @@
         <file>CabinSmoke_SetupConnect.qml</file>
         <file>CabinSmoke_Result.qml</file>
         <file>CabinTemp_Manual.qml</file>
+        <file>CabinTemp_Result.qml</file>
+        <file>CabinTemp_ResultTimeOut.qml</file>
     </qresource>
 </RCC>
