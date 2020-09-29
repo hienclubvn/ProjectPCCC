@@ -54,34 +54,69 @@ public:
     QString getDeviceModelName();
     void setDeviceModelName(const QString &value);
 };
-
-class CalibConfig: public QSettings {
-
+//
+class ThresholdCabinSmoke: public QSettings {
 public:
-    CalibConfig(const QString savedPath, const QString group);
+    ThresholdCabinSmoke(const QString savedPath, const QString group);
 
-    float getMaxPressure();
-    void setMaxPressure(float value);
+    float getThreshold_baokhoi();
+    void  setThreshold_baokhoi(float value);
+    //
+    float getThreshold_matdokhoi();
+    void  setThreshold_matdokhoi(float value);
+    //
+    float getThreshold_chapmach();
+    void  setThreshold_chapmach(float value);
+    //
+    int getThreshold_timeout();
+    void  setThreshold_timeout(int value);
+    //
+    //
 
-    float getKP();
-    void setKP(const float value);
-
-    float getKD();
-    void setKD(const float value);
-
-    float getKI();
-    void setKI(const float value);
 private:
     QString group;
 };
+//
 
+class ThresholdCabinTemp: public QSettings {
+public:
+    ThresholdCabinTemp(const QString savedPath, const QString group);
+    //1
+    float getThreshold_baoChay01();
+    void  setThreshold_baoChay01(float value);
+    float getThreshold_baoChay02();
+    void  setThreshold_baoChay02(float value);
+    //5
+    float getThreshold_nganMach01();
+    void  setThreshold_nganMach01(float value);
+    float getThreshold_nganMach02();
+    void  setThreshold_nganMach02(float value);
+    //9
+    float getThreshold_Temp01();
+    void  setThreshold_Temp01(float value);
+    float getThreshold_Temp02();
+    void  setThreshold_Temp02(float value);
+    //13
+    int   getThreshold_TimeOut01();
+    void  setThreshold_TimeOut01(int value);
+    int   getThreshold_TimeOut02();
+    void  setThreshold_TimeOut02(int value);
+    //17
+    //
+
+private:
+    QString group;
+};
+//
 class AppSetting {
 public:
     AppSetting(const QString savedPath);
     DefaultConfig defautConfig;
     SerialParameter modbusParam;
-    SerialParameter cambienParam;
-    CalibConfig calibParam;
+    SerialParameter rs485ICPParam;  //new
+    SerialParameter uartParam;  //new
+    ThresholdCabinSmoke thresholdCabinSmoke;
+    ThresholdCabinTemp thresholdCabinTemp;
 };
-
+//
 #endif // CONFIG_H

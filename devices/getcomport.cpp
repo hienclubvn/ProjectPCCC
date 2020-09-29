@@ -1,13 +1,11 @@
-#include "master.h"
+#include "getcomport.h"
 #include <QSerialPortInfo>
 #include <QDebug>
-Master::Master(Modbus *modbus_device)
+ComPort::ComPort()
 {
-        m_number_port = 0;
         getPortAvalable();
-        this->master_modbusDevice = modbus_device;
 }
-void Master::getPortAvalable()
+void ComPort::getPortAvalable()
 {
     const auto serialPortInfos = QSerialPortInfo::availablePorts();
     const QString blankString = "N/A";
@@ -34,10 +32,6 @@ void Master::getPortAvalable()
     emit varChanged();
 }
 
-bool Master::startConnection()
-{
-    return master_modbusDevice->startConnection();
-}
 
 
 

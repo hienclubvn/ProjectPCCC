@@ -27,6 +27,8 @@ class Modbus: public QObject, BaseObject {
     Q_PROPERTY(QString parity READ getParity WRITE setParity NOTIFY varChanged)
     Q_PROPERTY(int stopbits READ getStopBits WRITE setStopBits NOTIFY varChanged)
     Q_PROPERTY(int databits READ getDataBits WRITE setDatabits NOTIFY varChanged)
+    //
+    Q_PROPERTY(bool q_isBusy READ getIsBusy NOTIFY varChanged)
 
 signals:
     void varChanged ();
@@ -36,6 +38,7 @@ public:
 public:
    void setState(bool state){ connection_state = state;}
    bool getState(){return connection_state;}
+   bool getIsBusy(){return isBusy;}
 
    void setPortName(QString value){ settings->modbusParam.setPortName(value);}
    QString getPortName(){return settings->modbusParam.getPortName();}
@@ -67,16 +70,26 @@ public:
    void readSingleHoldingRegisterRecieved();
 
    Q_INVOKABLE void readHoldingRegister(int ID,int start_add, int number_register);
-   void readHoldingRegisterCompleted() const;
+   void readHoldingRegisterCompleted();
    void readCoilsCompleted() ;
    void readMultiCoils(int server,int start_add, int number_coils, bool *data);
    void readMultiDiscrete(int server,int start_add, int number_coils, bool *data);
    void readDiscreteCompleted();
+
+   //
+   int *holding_register_store;
+   int *holding_register_store_PVSP;
+   int nNumAddress = 0;
+   //
 signals:
    //void readSingleHoldingRegisterCompleted(int value);
    void readSingleHoldingRegisterCompleted();
    void readCoilsCompletedSignal();
-    void readDiscreteCompletedSignal();
+   void readDiscreteCompletedSignal();
+   void readHoldingRegisterCompletedOK() const;
+   void readHoldingRegister0x47CompletedOK() const;
+
+    void writeSingleHoldingRegisterCompletedOK();
 private:
    QModbusRtuSerialMaster *modbusDevice;
    QTimer *serialTimer;
@@ -89,6 +102,8 @@ private:
    bool *coil_result;
    int *holding_register_result;
    int nDiscrete;
+   //
+   bool isBusy;
 };
 
 #endif // MODBUS_HPP

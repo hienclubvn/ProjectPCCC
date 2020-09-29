@@ -14,25 +14,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-        devices/bientan.cpp \
-        devices/cambienapsuat.cpp \
-        devices/lcd.cpp \
-        devices/master.cpp \
+        devices/cabin_smoke.cpp \
+        devices/cabin_temperature.cpp \
+        devices/getcomport.cpp \
         devices/modbus.cpp \
-        devices/relay.cpp \
-        devices/vavle.cpp \
+        devices/rs485.cpp \
+        devices/uart.cpp \
         listModels/deviceModel.cpp \
         listModels/deviceparameter.cpp \
         main.cpp \
         ui/baseobject.cpp \
-        ui/calib_param.cpp \
-        ui/dangnhapthietbi.cpp \
         ui/dialitem.cpp \
         ui/dothi.cpp \
-        ui/hieuchinhthongso.cpp \
-        ui/kiemdinhtudong.cpp \
         ui/login.cpp \
-        ui/thunghiembangtay.cpp \
+        ui/logindevice.cpp \
         utils/config.cpp \
         utils/dataobject.cpp \
         utils/localdatabase.cpp \
@@ -60,24 +55,19 @@ INCLUDEPATH += devices \
 DISTFILES +=
 
 HEADERS += \
-    devices/bientan.hpp \
-    devices/cambienapsuat.hpp \
-    devices/lcd.h \
-    devices/master.h \
+    devices/cabin_smoke.hpp \
+    devices/cabin_temperature.hpp \
+    devices/getcomport.h \
     devices/modbus.hpp \
-    devices/relay.hpp \
-    devices/vavle.hpp \
+    devices/rs485.hpp \
+    devices/uart.hpp \
     listModels/deviceModel.h \
     listModels/deviceparameter.h \
     ui/baseobject.h \
-    ui/calib_param.h \
-    ui/dangnhapthietbi.hpp \
     ui/dialitem.h \
     ui/dothi.hpp \
-    ui/hieuchinhthongso.hpp \
-    ui/kiemdinhtudong.hpp \
     ui/login.hpp \
-    ui/thunghiembangtay.h \
+    ui/logindevice.hpp \
     utils/config.h \
     utils/constant.h \
     utils/dataobject.h \

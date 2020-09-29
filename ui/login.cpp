@@ -43,7 +43,8 @@ QString Login::loggedPassword()
 
 bool Login::logged()
 {
-    return !settings->defautConfig.getToken().isEmpty();
+    //return !settings->defautConfig.getToken().isEmpty();
+    return true;
 }
 
 void Login::logout()

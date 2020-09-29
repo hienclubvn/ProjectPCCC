@@ -4,6 +4,8 @@
 #include <QThread>
 Modbus::Modbus()  {
     modbusDevice = new QModbusRtuSerialMaster();
+    holding_register_store = new int (10);
+    holding_register_store_PVSP = new int (10); //nNumAddress
     nBytes= 0;
 }
 
@@ -28,25 +30,29 @@ bool Modbus::startConnection() {
     modbusDevice->setConnectionParameter(QModbusDevice::SerialStopBitsParameter, settings->modbusParam.getStopBits());
     if (!modbusDevice->connectDevice())
     {
-      qDebug() << "cannot connect ";
+      qDebug() << "ModbusRTU-cannot connect ";
       connection_state = false;
       emit varChanged();
     }
     else
     {
-      qDebug() << "connect ";
+      qDebug() << "ModbusRTU-connect ";
       connection_state = true;
       emit varChanged();
     }
 
-    qDebug() << "error: " << modbusDevice->errorString();
-    qDebug() << "state: " << modbusDevice->state();
+    //qDebug() << "error: " << modbusDevice->errorString();
+    //qDebug() << "state: " << modbusDevice->state();
     return true;
 }
 
+//FC06
 void Modbus::writeSingleHoldingRegister(int add, int value,int server)
 {
-    //startConnection();
+    if (connection_state == false) return;
+    //
+    isBusy = true;
+    //
     QModbusDataUnit reg(QModbusDataUnit::HoldingRegisters,add,1);
     reg.setValue(0,value);
     QModbusReply *reply;
@@ -59,15 +65,22 @@ void Modbus::writeSingleHoldingRegister(int add, int value,int server)
 }
 void Modbus::writeSingleHoldingRegisterCompleted()
 {
-    qDebug() << "Write Single Holding Resister Completed!";
+//    qDebug() << "Write Single Holding Resister Completed!";  
+    emit writeSingleHoldingRegisterCompletedOK();
+    isBusy = false;
 }
 
+//
 void Modbus::readSingleHoldingRegister (int add, int ID,int *data)
 {
+    if (connection_state == false) return;
+    //
+    isBusy = true;
+    //
     //startConnection();
     QModbusDataUnit readUnit(QModbusDataUnit::HoldingRegisters, add,1);
     if (auto *reply = modbusDevice->sendReadRequest(readUnit, ID)) {
-       qDebug()<<"Reading single holding register ...";
+       //qDebug()<<"Reading single holding register ...";
       if (!reply->isFinished())
         connect(reply, &QModbusReply::finished, this, &Modbus::readSingleHoldingRegisterRecieved);
     } else
@@ -83,10 +96,16 @@ void Modbus::readSingleHoldingRegisterRecieved()
     qDebug() << QString("The value is %1").arg(result.value(0));
     *holding_register_result = result.value(0);
     emit readSingleHoldingRegisterCompleted();
+
+    isBusy = false;
 }
 
 void Modbus::writeSingleCoil (int add, bool value, int server)
 {
+    if (connection_state == false) return;
+    //
+    isBusy = true;
+    //
     //startConnection();
     QModbusDataUnit reg(QModbusDataUnit::Coils,add,1);
     reg.setValue(0,value);
@@ -101,14 +120,20 @@ void Modbus::writeSingleCoil (int add, bool value, int server)
 
 void Modbus::writeSingleCoilComleted()
 {
-    qDebug() << "Write Single Coil Completed!";
+    //    qDebug() << "Write Single Coil Completed!";
+    isBusy = false;
 }
-
+//FC03 - 4x
 void Modbus::readHoldingRegister(int server,int start_add, int number_register)
 {
+    if (connection_state == false) return;
+    //
+    isBusy = true;
+    //
     nBytes = number_register;
     start_address = start_add;
     ID = server;
+    nNumAddress = ID;
 
     QModbusDataUnit readUnit(QModbusDataUnit::HoldingRegisters, start_address,
                              static_cast<unsigned short>(nBytes));
@@ -118,21 +143,41 @@ void Modbus::readHoldingRegister(int server,int start_add, int number_register)
         connect(reply, &QModbusReply::finished, this, &Modbus::readHoldingRegisterCompleted);
     } else
       qDebug() << "request error";
-
 }
 
-void Modbus::readHoldingRegisterCompleted() const {
+void Modbus::readHoldingRegisterCompleted() {
   QModbusReply *reply = qobject_cast<QModbusReply *>(sender());
   const QModbusDataUnit result = reply->result();
 //  qDebug() << "read ";
 //  qDebug() << "";
 
-  for (int j = 0; j < nBytes; j++)
-      qDebug() << QString("The value of %1 is %2").arg(j).arg(result.value(j));
+  if (nNumAddress == 0x07){
+      for (int j = 0; j < nBytes; j++) {
+         holding_register_store_PVSP[j] = result.value(j);
+         //qDebug() <<"start_address:"<<nNumAddress<< QString("The value of %1 is %2").arg(j).arg(result.value(j));
+         qDebug() <<"ModbusRTU, ID: "<<nNumAddress<<QString("The value of %1 is %2").arg(j).arg(result.value(j));
+      }
+      //emit readHoldingRegister0x47CompletedOK();
+  }
+  else  {
+      for (int j = 0; j < nBytes; j++) {
+          holding_register_store[j] = result.value(j);
+          //qDebug() <<"start_address:"<<nNumAddressRespone<< QString("The value of %1 is %2").arg(j).arg(result.value(j));
+          qDebug() <<"ModbusRTU, ID: "<<nNumAddress<<QString("The value of %1 is %2").arg(j).arg(result.value(j));
+      }
+      //emit readHoldingRegisterCompletedOK();
+  }
+  //
+  emit readHoldingRegisterCompletedOK();
+  isBusy = false;
 }
 
 void Modbus::readMultiCoils(int server,int start_add, int number_coils, bool *data)
 {
+    if (connection_state == false) return;
+    //
+    isBusy = true;
+    //
     nBytes = number_coils;
     start_address = start_add;
 
@@ -164,11 +209,16 @@ void Modbus::readCoilsCompleted()  {
 //    qDebug() << QString("The coil value of %1 is %2").arg(j).arg(result.value(j));
   }
   emit readCoilsCompletedSignal ();
+  //
+  isBusy = false;
 }
 
 void Modbus::readMultiDiscrete(int server,int start_add, int number_coils, bool *data)
 {
-
+    if (connection_state == false) return;
+    //
+    isBusy = true;
+    //
     nDiscrete = number_coils;
     QModbusDataUnit readUnit(QModbusDataUnit::DiscreteInputs, start_add,
                              static_cast<unsigned short>(number_coils));
@@ -194,12 +244,13 @@ void Modbus::readDiscreteCompleted()  {
 //    qDebug() << QString("The Discrete Input value of %1 is %2").arg(j).arg(result.value(j));
   }
   emit readDiscreteCompletedSignal ();
+  isBusy = false;
 }
 void Modbus::stopConnection()
 {
     modbusDevice->disconnectDevice();
     connection_state = false;
-    qDebug() << "Ngat ket noi!";
+    qDebug() << "ModbusRTU-Ngat ket noi!";
     emit varChanged();
 }
 Modbus::~Modbus() {

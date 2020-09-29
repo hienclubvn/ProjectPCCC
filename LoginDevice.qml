@@ -24,9 +24,10 @@ Item {
     }
 
     Connections {
-        target: LoginTB
+        target: LoginDevice
         onLoginSuccess: {
-           stack2.push("KiemDinhTD.qml")
+            stack2.push("CabinTemp_TestAuto.qml")
+            //stack2.push("CabinSmoke_TestAuto.qml")
         }
         onLoginFailed: {
             console.log("OK");
@@ -46,16 +47,17 @@ Item {
         onUnauthorized: {
             stack2.pop()
             stack.pop()
-            stack.push("Login.qml")
+            stack.push("LoginSystem.qml")
         }
     }
 
     Component.onCompleted: {
-        if (LoginTB.logged()){
-            stack2.push("KiemDinhTD.qml")
+        if (LoginDevice.logged()){
+            stack2.push("CabinTemp_TestAuto.qml")
+            //stack2.push("CabinSmoke_TestAuto.qml")
         } else {
             screenLabel.text = qsTr("ĐĂNG NHẬP THÔNG SỐ THIẾT BỊ")
-            LoginTB.getListDeviceModels();
+            LoginDevice.getListDeviceModels();
         }
     }
 
@@ -80,13 +82,17 @@ Item {
                         },
                         ComboBox {
                             id: cbDeviceModel
-                            model: LoginTB.deviceModels
+                            model: LoginDevice.deviceModels
                             width: 400
                             font.pointSize: 13
                             anchors.horizontalCenter: parent.horizontalCenter
                             textRole: "display"
                             onCurrentIndexChanged: {
+<<<<<<< Updated upstream:DangNhapTB.qml
                                 LoginTB.setDeviceModelName(cbDeviceModel.currentText)
+=======
+                                LoginDevice.setDeviceModelName(cbDeviceModel.textAt(cbDeviceModel.currentIndex))
+>>>>>>> Stashed changes:LoginDevice.qml
                             }
                         }
                     ]
@@ -107,7 +113,7 @@ Item {
                             children: [
                                 ComboBox {
                                     id: cbDeviceCode
-                                    enabled: LoginTB.deviceModelName() !== ""
+                                    enabled: LoginDevice.deviceModelName() !== ""
                                     model: ListModel {
                                         id: cbItems2
                                         ListElement { text: ""; }
@@ -128,7 +134,7 @@ Item {
                                 },
                                 TextField {
                                     id: maTB
-                                    enabled: LoginTB.deviceModelName() !== ""
+                                    enabled: LoginDevice.deviceModelName() !== ""
                                     width: 235
                                     font.pointSize: 13
                                     onTextChanged: {
@@ -154,7 +160,11 @@ Item {
                                     MouseArea {
                                         onClicked: {
                                             if (cbDeviceCode.currentText !== "") {
+<<<<<<< Updated upstream:DangNhapTB.qml
                                                 LoginTB.loginDevice(cbDeviceCode.text)
+=======
+                                                LoginDevice.loginDevice(cbDeviceCode.currentText)
+>>>>>>> Stashed changes:LoginDevice.qml
                                             }
                                         }
                                     }
@@ -168,7 +178,7 @@ Item {
                                     MouseArea {
                                         onClicked: {
                                             if (maTB.text !== "") {
-                                                LoginTB.saveDevice(maTB.text)
+                                                LoginDevice.saveDevice(maTB.text)
                                             }
                                         }
                                     }

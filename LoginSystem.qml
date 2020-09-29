@@ -14,6 +14,7 @@ Item {
     property color popupBackGroundColor: "#b44"
     property color popupTextCOlor: "#ffffff"
     Rectangle{
+        id: rectangle
         color: "#f42a2a"
         anchors.fill: parent
 
@@ -21,9 +22,13 @@ Item {
             id: label
             anchors.top: parent.top
             anchors.topMargin: 37
-            anchors.horizontalCenter: parent.horizontalCenter
             text: "ĐĂNG NHẬP KIỂM ĐỊNH VIÊN"
-            anchors.horizontalCenterOffset: 1
+            anchors.right: parent.right
+            anchors.rightMargin: 108
+            anchors.left: parent.left
+            anchors.leftMargin: 110
+            anchors.bottom: parent.bottom
+            anchors.bottomMargin: 411
             font.family: "Tahoma"
             font.pixelSize: 26
             font.bold: true
@@ -49,7 +54,8 @@ Item {
             Connections {
                 target: QLogin
                 onLoginSuccess: {
-                    stack.push("MainWindow.qml")
+                    //stack.push("CabinSmoke_MainWindow.qml")
+                    //stack.push("CabinTemp_MainWindow.qml")
                 }
                 onLoginFailed: {
                     messageDialog.visible = true
@@ -59,7 +65,8 @@ Item {
 
             Component.onCompleted: {
                 if (QLogin.logged()){
-                    stack.push("MainWindow.qml")
+                    //stack.push("CabinSmoke_MainWindow.qml")
+                    stack.push("CabinTemp_MainWindow.qml")
                 }
             }
 
@@ -74,6 +81,7 @@ Item {
                 }
 
                 Item {
+                    id: element
                     anchors.rightMargin: 20
                     anchors.bottomMargin: 32
                     anchors.leftMargin: 20
@@ -83,9 +91,11 @@ Item {
 
                     Rectangle {
                         id: iconRect
-                        y: -7
-                        height: parent.height / 3
                         color: backGroundColor
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 234
+                        anchors.top: parent.top
+                        anchors.topMargin: -7
                         anchors.rightMargin: 0
                         anchors.leftMargin: 0
                         anchors.left: parent.left
@@ -93,17 +103,23 @@ Item {
 
                         Image {
                             id: image
-                            x: 250
-                            y: 7
-                            width: 100
-                            height: 100
+                            anchors.right: parent.right
+                            anchors.rightMargin: 250
+                            anchors.left: parent.left
+                            anchors.leftMargin: 250
+                            anchors.bottom: parent.bottom
+                            anchors.bottomMargin: 6
+                            anchors.top: parent.top
+                            anchors.topMargin: 7
                             fillMode: Image.PreserveAspectFit
-                            source: "../pccc410.png"
+                            source: "Icon/pccc410.png"
                         }
                     }
 
                     ColumnLayout {
                         id: loginLayout
+                        anchors.bottom: parent.bottom
+                        anchors.bottomMargin: 69
                         anchors.top: iconRect.bottom
                         anchors.topMargin: 50
                         anchors.left: parent.left
@@ -187,30 +203,30 @@ Item {
                             height: 20
                         }
 
-                        CButton{
-                            id: loginBtn
-                            height: 50
-                            font.family: "Tahoma"
-                            Layout.alignment: Qt.AlignCenter
-                            Layout.preferredWidth: 200
-                            name: "Đăng nhập"
-                            baseColor: mainAppColor
-                            borderColor: mainAppColor
-                            onClicked: {
-                                loginBtn.enabled = false
-                                QLogin.onClick(loginUsername.text,loginPassword.text)
-                            }
-                        }
+//                        CButton{
+//                            id: loginBtn
+//                            height: 50
+//                            font.family: "Tahoma"
+//                            Layout.alignment: Qt.AlignCenter
+//                            Layout.preferredWidth: 200
+//                            name: "Đăng nhập"
+//                            baseColor: mainAppColor
+//                            borderColor: mainAppColor
+//                            onClicked: {
+//                                loginBtn.enabled = false
+//                                QLogin.onClick(loginUsername.text,loginPassword.text)
+//                            }
+//                        }
 
-                        CButton{
-                            height: 50
-                            Layout.alignment: Qt.AlignCenter
-                            Layout.preferredWidth: 200
-                            name: "Bỏ qua"
-                            baseColor: mainAppColor
-                            borderColor: mainAppColor
-                            onClicked: QLogin.onClick()
-                        }
+//                        CButton{
+//                            height: 50
+//                            Layout.alignment: Qt.AlignCenter
+//                            Layout.preferredWidth: 200
+//                            name: "Bỏ qua"
+//                            baseColor: mainAppColor
+//                            borderColor: mainAppColor
+//                            onClicked: QLogin.onClick()
+//                        }
                     }
                 }
 
@@ -238,7 +254,14 @@ Item {
 
 
 
+
+
+
+
+
+
 /*##^## Designer {
-    D{i:0;autoSize:true;height:480;width:640}
+    D{i:0;autoSize:true;height:480;width:640}D{i:10;anchors_height:100;anchors_width:100;anchors_x:250;anchors_y:7}
+D{i:9;anchors_height:113.33333333333333;anchors_y:"-7"}
 }
  ##^##*/

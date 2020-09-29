@@ -27,9 +27,8 @@
         <file>FlatUI-Controls-QML-master/README.md</file>
         <file>FlatUI-Controls-QML-master/WarningButton.qml</file>
         <file>FlatUI-Controls-QML-master/Dropdown.qml</file>
-        <file>Clock.qml</file>
-        <file>Login.qml</file>
-        <file>MainWindow.qml</file>
+        <file>LoginSystem.qml</file>
+        <file>CabinTemp_MainWindow.qml</file>
         <file>Icon/handclick.png</file>
         <file>Icon/switch-on-icon.png</file>
         <file>Icon/switch-off-icon.png</file>
@@ -37,11 +36,8 @@
         <file>Icon/switch-off.jpg</file>
         <file>Icon/gauge-md.png</file>
         <file>Icon/needle.png</file>
-        <file>MyDial.qml</file>
         <file>Icon/gauge.png</file>
         <file>addPort.mjs</file>
-        <file>DoThi.qml</file>
-        <file>CButton.qml</file>
         <file>fontawesome-webfont.ttf</file>
         <file>Icon/hand.jpg</file>
         <file>Icon/hand.png</file>
@@ -62,24 +58,31 @@
         <file>Icon/close.png</file>
         <file>Icon/home.png</file>
         <file>Icon/home2.png</file>
-        <file>DangNhapTB.qml</file>
-        <file>KiemDinhTD.qml</file>
-        <file>Gauge.qml</file>
+        <file>LoginDevice.qml</file>
         <file>img/background.png</file>
         <file>img/background.svg</file>
         <file>img/needle.svg</file>
         <file>img/tickmark.svg</file>
-        <file>GaugeStyle.qml</file>
         <file>FlatUI-Controls-QML-master/Textinput.qml</file>
-        <file>ThuNghiemBangTay.qml</file>
-        <file>CaiDatThongSo.qml</file>
-        <file>LichSuKiemDinh.qml</file>
+        <file>CabinTemp_setupConnect.qml</file>
+        <file>CabinSmoke_HistoryTest.qml</file>
         <file>Icon/on_state.png</file>
         <file>Icon/off_state.png</file>
-        <file>Chart.qml</file>
-        <file>HieuChinhThamSo.qml</file>
+        <file>CabinTemp_SetupSystem.qml</file>
         <file>Menu.qml</file>
         <file>thietbi.json</file>
-        <file>CalibParam.qml</file>
+        <file>CabinSmoke_SetupSystem.qml</file>
+        <file>CabinSmoke_TestAuto.qml</file>
+        <file>CabinTemp_TestManual.qml</file>
+        <file>Icon/temperature_48px.png</file>
+        <file>CabinSmoke_MainWindow.qml</file>
+        <file>CabinTemp_TestAuto.qml</file>
+        <file>Icon/pccc410.png</file>
+        <file>CabinSmoke_TestData.qml</file>
+        <file>CabinTemp_TestData.qml</file>
+        <file>CabinSmoke_Manual.qml</file>
+        <file>CabinSmoke_SetupConnect.qml</file>
+        <file>CabinSmoke_Result.qml</file>
+        <file>CabinTemp_Manual.qml</file>
     </qresource>
 </RCC>

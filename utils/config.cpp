@@ -3,15 +3,18 @@
 AppSetting::AppSetting(const QString savedPath):
     defautConfig(savedPath),
     modbusParam(savedPath, "Modbus"),
-    cambienParam(savedPath, "Cambien"),
-    calibParam(savedPath, "CalibParam")
+    rs485ICPParam(savedPath, "rs485ICPParam"),
+    uartParam(savedPath, "uartParam"),
+    thresholdCabinSmoke(savedPath, "thresholdCabinSmoke"),
+    thresholdCabinTemp(savedPath, "thresholdCabinTemp")
+    //calibParam(savedPath, "CalibParam")
 {}
 
 SerialParameter::SerialParameter(const QString savedPath, const QString group)
     : QSettings(savedPath, QSettings::Format::IniFormat, nullptr), group(group)
 {}
 
-QString SerialParameter::getPortName()
+QString SerialParameter::getPortName()  //settings->modbusParam.getPortName()
 {
     this->beginGroup(group);
     QString value = this->value("portname").toString();
@@ -31,7 +34,7 @@ int SerialParameter::getBaudrate()
     this->beginGroup(group);
     int value = this->value("baudrate").toInt();
     this->endGroup();
-    return value != 0 ? value : 19200;
+    return value != 0 ? value : 9600;
 }
 
 void SerialParameter::setBaudrate(int value)
@@ -195,70 +198,134 @@ void DefaultConfig::setDeviceModelName(const QString &value)
     this->endGroup();
 }
 
-CalibConfig::CalibConfig(const QString savedPath, const QString group)
+//--------------(begin)ThresholdCabinSmoke------
+ThresholdCabinSmoke::ThresholdCabinSmoke(const QString savedPath, const QString group)
     : QSettings(savedPath, QSettings::Format::IniFormat, nullptr), group(group)
 {}
-
-float CalibConfig::getMaxPressure()
+//
+float ThresholdCabinSmoke::getThreshold_baokhoi()
 {
     this->beginGroup(group);
-    float value = this->value("maxPressure").toFloat();
+    float value = this->value("threshold_baokhoi").toFloat();
     this->endGroup();
-    return value;
+    return value != 0.0f ? value : 10.0;
 }
 
-void CalibConfig::setMaxPressure(float value)
+void ThresholdCabinSmoke::setThreshold_baokhoi(float value)
 {
     this->beginGroup(group);
-    this->setValue("maxPressure", value);
+    this->setValue("threshold_baokhoi", value);
     this->endGroup();
 }
-
-float CalibConfig::getKP()
+//
+float ThresholdCabinSmoke::getThreshold_chapmach()
 {
     this->beginGroup(group);
-    float value = this->value("KP").toFloat();
+    float value = this->value("threshold_chapmach").toFloat();
     this->endGroup();
-    return value;
+    return value != 0.0f ? value : 20.0;
 }
 
-void CalibConfig::setKP(const float value)
+void ThresholdCabinSmoke::setThreshold_chapmach(float value)
 {
     this->beginGroup(group);
-    this->setValue("KP", value);
+    this->setValue("threshold_chapmach", value);
     this->endGroup();
 }
-
-
-float CalibConfig::getKI()
+//
+float ThresholdCabinSmoke::getThreshold_matdokhoi()
 {
     this->beginGroup(group);
-    float value = this->value("KI").toFloat();
+    float value = this->value("threshold_matdokhoi").toFloat();
     this->endGroup();
-    return value;
+    return value != 0.0f ? value : 30.0;
 }
 
-void CalibConfig::setKI(const float value)
+void ThresholdCabinSmoke::setThreshold_matdokhoi(float value)
 {
     this->beginGroup(group);
-    this->setValue("KI", value);
+    this->setValue("threshold_matdokhoi", value);
     this->endGroup();
 }
-
-
-
-float CalibConfig::getKD()
+//
+int ThresholdCabinSmoke::getThreshold_timeout()
 {
     this->beginGroup(group);
-    float value = this->value("KD").toFloat();
+    int value = this->value("threshold_timeout").toInt();
     this->endGroup();
-    return value;
+    return value != 0 ? value : 20.0;
 }
 
-void CalibConfig::setKD(const float value)
+void ThresholdCabinSmoke::setThreshold_timeout(int value)
 {
     this->beginGroup(group);
-    this->setValue("KD", value);
+    this->setValue("threshold_timeout", value);
     this->endGroup();
 }
-
+//
+//--------------(end)ThresholdCabinSmoke------
+//--------------(begin)ThresholdCabinTemp------
+ThresholdCabinTemp::ThresholdCabinTemp(const QString savedPath, const QString group)
+    : QSettings(savedPath, QSettings::Format::IniFormat, nullptr), group(group)
+{}
+//
+int ThresholdCabinTemp::getThreshold_TimeOut01() {
+    this->beginGroup(group); int value = this->value("threshold_TimeOut01").toInt(); this->endGroup();
+    return value != 0 ? value : 20.0;
+}
+void ThresholdCabinTemp::setThreshold_TimeOut01(int value) {
+    this->beginGroup(group); this->setValue("threshold_TimeOut01", value); this->endGroup();
+}
+int ThresholdCabinTemp::getThreshold_TimeOut02() {
+    this->beginGroup(group); int value = this->value("threshold_TimeOut02").toInt(); this->endGroup();
+    return value != 0 ? value : 20.0;
+}
+void ThresholdCabinTemp::setThreshold_TimeOut02(int value) {
+    this->beginGroup(group); this->setValue("threshold_TimeOut02", value); this->endGroup();
+}
+//
+float ThresholdCabinTemp::getThreshold_baoChay01() {
+    this->beginGroup(group); float value = this->value("threshold_baoChay01").toFloat(); this->endGroup();
+    return value != 0.0f ? value : 20.0;
+}
+void ThresholdCabinTemp::setThreshold_baoChay01(float value) {
+    this->beginGroup(group); this->setValue("threshold_baoChay01", value); this->endGroup();
+}
+float ThresholdCabinTemp::getThreshold_baoChay02() {
+    this->beginGroup(group); float value = this->value("threshold_baoChay02").toFloat(); this->endGroup();
+    return value != 0.0f ? value : 20.0;
+}
+void ThresholdCabinTemp::setThreshold_baoChay02(float value) {
+    this->beginGroup(group); this->setValue("threshold_baoChay02", value); this->endGroup();
+}
+//
+float ThresholdCabinTemp::getThreshold_nganMach01() {
+    this->beginGroup(group); float value = this->value("threshold_nganMach01").toFloat(); this->endGroup();
+    return value != 0.0f ? value : 20.0;
+}
+void ThresholdCabinTemp::setThreshold_nganMach01(float value) {
+    this->beginGroup(group); this->setValue("threshold_nganMach01", value); this->endGroup();
+}
+float ThresholdCabinTemp::getThreshold_nganMach02() {
+    this->beginGroup(group); float value = this->value("threshold_nganMach02").toFloat(); this->endGroup();
+    return value != 0.0f ? value : 20.0;
+}
+void ThresholdCabinTemp::setThreshold_nganMach02(float value) {
+    this->beginGroup(group); this->setValue("threshold_nganMach02", value); this->endGroup();
+}
+//
+float ThresholdCabinTemp::getThreshold_Temp01() {
+    this->beginGroup(group); float value = this->value("threshold_Temp01").toFloat(); this->endGroup();
+    return value != 0.0f ? value : 20.0;
+}
+void ThresholdCabinTemp::setThreshold_Temp01(float value) {
+    this->beginGroup(group); this->setValue("threshold_Temp01", value); this->endGroup();
+}
+float ThresholdCabinTemp::getThreshold_Temp02() {
+    this->beginGroup(group); float value = this->value("threshold_Temp02").toFloat(); this->endGroup();
+    return value != 0.0f ? value : 20.0;
+}
+void ThresholdCabinTemp::setThreshold_Temp02(float value) {
+    this->beginGroup(group); this->setValue("threshold_Temp02", value); this->endGroup();
+}
+//--------------(end)ThresholdCabinTemp---------

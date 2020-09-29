@@ -1,6 +1,6 @@
-#include "dangnhapthietbi.hpp"
+#include "logindevice.hpp"
 
-void DangNhapThietBi::loginDevice(QString code)
+void LoginDevice::loginDevice(QString code)
 {
     if (settings->defautConfig.getToken().isEmpty()){
         getDeviceLocal(code);
@@ -29,7 +29,7 @@ void DangNhapThietBi::loginDevice(QString code)
     }
 }
 
-void DangNhapThietBi::saveDevice(QString code)
+void LoginDevice::saveDevice(QString code)
 {
     QVariantMap mapDevice;
     mapDevice["deviceModelName"] = settings->defautConfig.getDeviceModelName();
@@ -42,7 +42,7 @@ void DangNhapThietBi::saveDevice(QString code)
     }
 }
 
-void DangNhapThietBi::getDeviceLocal(QString code){
+void LoginDevice::getDeviceLocal(QString code){
     QStringList fields;
     fields.append("iParameter");
 
@@ -58,7 +58,7 @@ void DangNhapThietBi::getDeviceLocal(QString code){
     }
 }
 
-bool DangNhapThietBi::getListDeviceModelsLocal()
+bool LoginDevice::getListDeviceModelsLocal()
 {
     QStringList fields;
     fields.append("name");
@@ -79,7 +79,7 @@ bool DangNhapThietBi::getListDeviceModelsLocal()
     return true;
 }
 
-bool DangNhapThietBi::saveListDeviceModels(QJsonArray deviceModels)
+bool LoginDevice::saveListDeviceModels(QJsonArray deviceModels)
 {
     listDeviceModel = QList<QString>() << QString("");
     foreach (const QJsonValue & deviceModel, deviceModels) {
@@ -97,7 +97,7 @@ bool DangNhapThietBi::saveListDeviceModels(QJsonArray deviceModels)
     return true;
 }
 
-void DangNhapThietBi::setDeviceModelName(QString deviceModelName)
+void LoginDevice::setDeviceModelName(QString deviceModelName)
 {
     QStringList fields;
     fields.append("iParameter");
@@ -114,7 +114,7 @@ void DangNhapThietBi::setDeviceModelName(QString deviceModelName)
     }
 }
 
-void DangNhapThietBi::getListDeviceModels()
+void LoginDevice::getListDeviceModels()
 {
     if (settings->defautConfig.getToken().isEmpty()){
         getListDeviceModelsLocal();
@@ -144,28 +144,29 @@ void DangNhapThietBi::getListDeviceModels()
     }
 }
 
-ListDeviceModels* DangNhapThietBi::listDeviceModels()
+ListDeviceModels* LoginDevice::listDeviceModels()
 {
     return new ListDeviceModels(listDeviceModel);
 }
 
-DangNhapThietBi::DangNhapThietBi()
+LoginDevice::LoginDevice()
 {
     network = new Network();
     localDatabase = new LocalDatabase();
 
 }
 
-bool DangNhapThietBi::logged()
+bool LoginDevice::logged()
 {
-    return !settings->defautConfig.getDeviceCode().isEmpty();
+    //return !settings->defautConfig.getDeviceCode().isEmpty();
+    return true;
 }
 
-void DangNhapThietBi::logout()
+void LoginDevice::logout()
 {
     settings->defautConfig.setDeviceCode("");
 }
 
-QString DangNhapThietBi::deviceModelName() {
+QString LoginDevice::deviceModelName() {
     return settings->defautConfig.getDeviceModelName().toUpper();
 }

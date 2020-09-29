@@ -23,22 +23,22 @@ Item {
                     onClicked: {
                         QLogin.logout()
                         stack.pop()
-                        stack.push("Login.qml")
+                        stack.push("LoginSystem.qml")
                         stack2.clear()
                     }
                 }
             }
 
             PrimaryButton {
-                color: !LoginTB.logged() ? constants.grayLight : constants.turquoise
+                color: !LoginDevice.logged() ? constants.grayLight : constants.turquoise
                 text: qsTr("ĐĂNG XUẤT THIẾT BỊ")
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        LoginTB.logout()
+                        LoginDevice.logout()
                         stack2.clear()
                     }
-                    enabled: LoginTB.logged()
+                    enabled: LoginDevice.logged()
                 }
             }
         }
