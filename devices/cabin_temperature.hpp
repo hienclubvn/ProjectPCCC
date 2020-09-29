@@ -117,6 +117,10 @@ public:
     void readGPIOCompleted();
     void writeCompleted();
     void ReadICPCompleted();
+
+    //
+    float setpoit_varitor = 0.0;
+    //
 signals:
     void varChanged ();
     void varChanged2 ();
@@ -134,7 +138,7 @@ private:
     float humidity;
     float setpointSP = 0.0;
     float temperature_sensor = 0.0;
-    float setpoit_varitor = 0.0;
+    //float setpoit_varitor = 0.0;
     int angleStepMotor;
     int angle_current = 0;
     int nIndexRequet = 0;

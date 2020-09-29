@@ -57,9 +57,10 @@ void Cabin_Temperature::readAllData()
         case 0: readAllSHT11(); break;
         case 1: readAllStateInput(); break;
         case 2: readAll_PV_SP(); break;
+        case 3: write_SP(setpoit_varitor);
     }
     //
-    if (nIndexRequet >= 3) nIndexRequet = 0;
+    if (nIndexRequet >= 4) nIndexRequet = 0;
 }
 void Cabin_Temperature::readAllSHT11()
 {
@@ -152,7 +153,7 @@ void Cabin_Temperature::ReadICPCompleted()
     //bien tro dieu chinh setpoint
     setpoit_varitor = cabin_rs485->dataFloat[6]*150.0f/5.2f;
 
-    write_SP(setpoit_varitor);
+    //write_SP(setpoit_varitor);
 
     emit varChanged();
 }

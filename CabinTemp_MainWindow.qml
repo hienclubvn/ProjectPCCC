@@ -13,7 +13,7 @@ Item {
 
     //
     Timer { //ModbusRTU
-        interval: 200; running: true; repeat: true
+        interval: 250; running: true; repeat: true
         //
         onTriggered: {
             Cabin_Temp.readAllData()
