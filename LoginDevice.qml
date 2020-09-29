@@ -88,11 +88,8 @@ Item {
                             anchors.horizontalCenter: parent.horizontalCenter
                             textRole: "display"
                             onCurrentIndexChanged: {
-<<<<<<< Updated upstream:DangNhapTB.qml
                                 LoginTB.setDeviceModelName(cbDeviceModel.currentText)
-=======
                                 LoginDevice.setDeviceModelName(cbDeviceModel.textAt(cbDeviceModel.currentIndex))
->>>>>>> Stashed changes:LoginDevice.qml
                             }
                         }
                     ]
@@ -160,11 +157,8 @@ Item {
                                     MouseArea {
                                         onClicked: {
                                             if (cbDeviceCode.currentText !== "") {
-<<<<<<< Updated upstream:DangNhapTB.qml
                                                 LoginTB.loginDevice(cbDeviceCode.text)
-=======
                                                 LoginDevice.loginDevice(cbDeviceCode.currentText)
->>>>>>> Stashed changes:LoginDevice.qml
                                             }
                                         }
                                     }

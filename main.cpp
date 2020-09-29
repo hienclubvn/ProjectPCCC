@@ -28,18 +28,11 @@ int main(int argc, char *argv[])
     Cabin_Smoke *m_cabin_smoke = new Cabin_Smoke(m_modbus,m_rs485, m_uart);
 
     Login *m_login = new Login();
-<<<<<<< Updated upstream
-    CalibParam *m_CalibParam = new CalibParam();
-    DangNhapThietBi *m_DangNhapThietBi = new DangNhapThietBi();
-    ThuNghiemBangTay *m_thuNghiemBangTay = new ThuNghiemBangTay(m_cambien, m_bientan, m_modbus, m_relay);
-    KiemDinhTuDong *m_kiemDinhTuDong = new KiemDinhTuDong();
-    HieuChinhThongSo *m_hieuChinhThongSo = new HieuChinhThongSo();
+    //CalibParam *m_CalibParam = new CalibParam();
     qmlRegisterType<DialItem>("IVIControls", 1, 0, "DialItem");
-    qmlRegisterType<CamBienApSuat>("camBienApSuat", 1, 0, "CamBienApSuat");
+    //qmlRegisterType<CamBienApSuat>("camBienApSuat", 1, 0, "CamBienApSuat");
     //qmlRegisterType<HieuChinhThongSo>("HieuChinhThongSo", 1, 0, "HieuChinhThongSo");
-=======
     LoginDevice *m_loginDevice = new LoginDevice();
->>>>>>> Stashed changes
 
     // qmlRegisterType<HieuChinhThongSo>("HieuChinhThongSo", 1, 0, "HieuChinhThongSo");
     //
@@ -50,17 +43,15 @@ int main(int argc, char *argv[])
     QQmlContext *context = engine.rootContext();
     //
     context->setContextProperty("QLogin", m_login);
-<<<<<<< Updated upstream
-    context->setContextProperty("LoginTB", m_DangNhapThietBi);
-    context->setContextProperty("CParam", m_CalibParam);
-    context->setContextProperty("Relay", m_relay);
-    context->setContextProperty("TnBangTay", m_thuNghiemBangTay);
-    context->setContextProperty("KiemDinhTD", m_kiemDinhTuDong);
-    context->setContextProperty("listLoaiVoi", QVariant::fromValue(m_kiemDinhTuDong->listLoaiVoi));
-    context->setContextProperty("listApSuatThu", QVariant::fromValue(m_kiemDinhTuDong->listApSuatThu));
-    context->setContextProperty("listApSuatLamViec", QVariant::fromValue(m_kiemDinhTuDong->listApSuatLamViec));
-    context->setContextProperty("HieuChinh", m_hieuChinhThongSo);
-=======
+    //context->setContextProperty("LoginTB", m_DangNhapThietBi);
+    //context->setContextProperty("CParam", m_CalibParam);
+    //context->setContextProperty("Relay", m_relay);
+    //context->setContextProperty("TnBangTay", m_thuNghiemBangTay);
+    //context->setContextProperty("KiemDinhTD", m_kiemDinhTuDong);
+    //context->setContextProperty("listLoaiVoi", QVariant::fromValue(m_kiemDinhTuDong->listLoaiVoi));
+    //context->setContextProperty("listApSuatThu", QVariant::fromValue(m_kiemDinhTuDong->listApSuatThu));
+    //context->setContextProperty("listApSuatLamViec", QVariant::fromValue(m_kiemDinhTuDong->listApSuatLamViec));
+    //context->setContextProperty("HieuChinh", m_hieuChinhThongSo);
     context->setContextProperty("LoginDevice", m_loginDevice);
     //Device Level
     context->setContextProperty("ComPort", m_comport);
@@ -72,7 +63,6 @@ int main(int argc, char *argv[])
     context->setContextProperty("Cabin_Smoke",m_cabin_smoke);
 
     // Main - UI
->>>>>>> Stashed changes
     const QUrl url(QStringLiteral("qrc:/main.qml"));
     QObject::connect(&engine, &QQmlApplicationEngine::objectCreated,
                      &app, [url](QObject *obj, const QUrl &objUrl) {
