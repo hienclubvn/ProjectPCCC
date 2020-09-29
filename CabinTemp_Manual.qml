@@ -20,36 +20,155 @@ import QtQuick.Controls.Styles 1.4
 Item {
     Component.onCompleted: screenLabel.text = qsTr("KIỂM ĐỊNH TỰ ĐỘNG")
     //
-    Timer { //ModbusRTU
+    Timer { //Button Start (Running)
         interval: 500; running: true; repeat: true
         //
         onTriggered: {
-            toggleButton.checked = Cabin_Smoke.q_run_system_state;
+            toggleButton.checked = Cabin_Temp.q_run_system_state;
             //
-            if (Cabin_Smoke.q_run_system_state) toggleButton.text = qsTr("DỪNG LẠI");
+            if (Cabin_Temp.q_run_system_state) toggleButton.text = qsTr("DỪNG LẠI");
             else toggleButton.text = qsTr("BẮT ĐẦU");
+            //
+            if (bIsAlarm1) statusAlarm01.active = !statusAlarm01.active;
+            if (bIsAlarm2) statusAlarm01.active = !statusAlarm02.active;
         }
     }
     //
     property var x_var: 0
+    property bool bIsAlarm1: false
+    property bool bIsAlarm2: false
+    property bool bIsRun: false
     //
-    Timer {
+    Timer { //ve do thi..
         interval: 1000; running: true; repeat: true
         onTriggered:{
-            x_var ++;
-            lineSeries.append(x_var, Cabin_Smoke.q_density_smoke);
-            lineSeries1.append(x_var, 10.5);
-            //
-            //axisY.max = 10.5 + 5.0;
-            //axisY.min = -2;
-            if (lineSeries.count > axisX.max)
-            {
-                axisX.min = axisX.max;
-                axisX.max = axisX.min + 60;
+            if (bIsRun){
+                x_var ++;
+                lineSeries.append(x_var, Cabin_Temp.q_volt_sensor1_respone);
+                lineSeries1.append(x_var, Cabin_Temp.q_volt_sensor2_respone);
+                lineSeries2.append(x_var, Cabin_Temp.threshold_Temp01);
+                //
+                //axisY.max = 10.5 + 5.0;
+                //axisY.min = -2;
+                if (lineSeries.count > axisX.max)
+                {
+                    axisX.min = axisX.max;
+                    axisX.max = axisX.min + 60;
+                }
+            }
+            else {
+                x_var = 0;
+                //lineSeries.clear(); lineSeries1.clear(); lineSeries2.clear();
+                //axisX.min = 0;
+                //axisX.max = 60;
             }
         }
     }
     //
+    property int nCountTime1: 0
+    property int nCountTime2: 0
+    property bool bIsRunED: false
+    property bool bTimeOut1: false
+    Timer { //process
+        id: timeClock
+        interval: 1000
+        running: true //false
+        repeat: true
+        onTriggered:{
+            if (Cabin_Temp.q_run_system_state){
+                bIsRun = true;
+            }
+            else {
+                bIsRun = false;
+                bIsAlarm1 = false;
+                bIsAlarm2 = false;
+                Cabin_Temp.writeAlarm(0,false);
+                Cabin_Temp.writeAlarm(1,false);
+                statusAlarm01.active = false;
+                statusAlarm02.active = false;
+                Cabin_Temp.write_RunModuleTemp(false);
+                //
+                if (nCountTime > 0) bIsRunED = true;
+            }
+            //
+            if (bIsRun) {
+                //cho gia nhiet
+                Cabin_Temp.write_RunModuleTemp(true);
+                //reset..
+                if (bIsRunED)  {
+                    nCountTime1 = 0;  nCountTime2 = 0;
+                    bIsRunED = false;
+                    bTimeOut1 = bTimeOut2 = false;
+                    //
+                    lineSeries.clear(); lineSeries1.clear();
+                    axisX.min = 0;
+                    axisX.max = 60;
+                    //
+                }
+                //check Thresholds + nCountTime1
+                if ((Cabin_Temp.q_temperature_sensor >= Cabin_Temp.threshold_Temp01) & !bIsAlarm1) {
+                    nCountTime1++;
+                    //
+                    if (Cabin_Temp.q_volt_sensor1_respone >= Cabin_Temp.threshold_baoChay01) {
+                        Cabin_Temp.writeAlarm(0,true);
+                        bIsAlarm1 = true;
+                        //
+                        stack4.clear()
+                        stack4.push("CabinTemp_Result.qml")
+
+                    } else {
+                        Cabin_Temp.writeAlarm(0,false);
+                        statusAlarm01.active = false;
+                        bIsAlarm1 = false;
+                        stack4.clear()
+                    }
+                    //
+                }
+                //check Thresholds + nCountTime2
+                if ((Cabin_Temp.q_temperature_sensor >= Cabin_Temp.threshold_Temp02) & !bIsAlarm2) {
+                    nCountTime2++;
+                    //
+                    if (Cabin_Temp.q_volt_sensor2_respone >= Cabin_Temp.threshold_baoChay02) {
+                        Cabin_Temp.writeAlarm(1,true);
+                        bIsAlarm1 = true;
+                        //
+                        stack5.clear()
+                        stack5.push("CabinTemp_Result.qml")
+
+                    } else {
+                        Cabin_Temp.writeAlarm(1,false);
+                        statusAlarm02.active = false;
+                        bIsAlarm2 = false;
+                        stack5.clear()
+                    }
+                    //
+                }
+                //
+                txt_time_threshold01.text = (nCountTime1 % 60).toFixed(0)
+                txt_time_threshold02.text = (nCountTime2 % 60).toFixed(0)
+                //
+                if (nCountTime1 > Cabin_Temp.threshold_Temp01) bTimeOut1 = true;
+                if (nCountTime2 > Cabin_Temp.threshold_Temp02) bTimeOut2 = true;
+
+                if (bTimeOut1 & bTimeOut2){
+                    Cabin_Temp.writeStateRunSystem(false);
+                }
+            } //bRun
+            else {
+                if (bTimeOut1) {
+                    //cho 02 stack voi ket qua khac nhau cho nhanh./
+                    stack4.clear()
+                    stack4.push("CabinTemp_ResultTimeOut.qml")
+                }
+                if (bTimeOut2) {
+                    stack5.clear()
+                    stack5.push("CabinTemp_ResultTimeOut.qml")
+                }
+            }
+            // no-if-else
+        }
+    } //end-Timer
+
     Rectangle {
         id: rectangle
         color: "#e4f9ff"
@@ -116,7 +235,7 @@ Item {
                         anchors.horizontalCenter: parent.horizontalCenter
                         minimumValue: 0
                         maximumValue: 100
-                        value: Cabin_Smoke.q_density_smoke
+                        value: Cabin_Temp.q_temperature_sensor
                         style: CircularGaugeStyle {
                             minimumValueAngle: -90
                             maximumValueAngle: 90
@@ -166,13 +285,28 @@ Item {
                                 //color: "black"
                             }
                         }
+
+                        Label {
+                            id: label3
+                            x: 91
+                            y: 58
+                            text: qsTr("o")
+                            anchors.horizontalCenterOffset: 0
+                            anchors.horizontalCenter: parent.horizontalCenter
+                            Label {
+                                id: label4
+                                x: 8
+                                y: 11
+                                text: qsTr("C")
+                            }
+                        }
                     }
 
                     ColumnLayout {
                         x: 7
                         y: 8
                         width: 60
-                        anchors.leftMargin: 1
+                        anchors.leftMargin: 8
                         anchors.left: parent.left
                         Text {
                             id: element15
@@ -184,7 +318,7 @@ Item {
                         Text {
                             id: element16
                             color: "#0534db"
-                            text: "Nhiệt đặt (SV)"
+                            text: "Nhiệt đặt (SV):"
                             font.pixelSize: 14
                         }
                         anchors.top: parent.top
@@ -196,12 +330,12 @@ Item {
                     ColumnLayout {
                         x: -4
                         y: 8
-                        width: 59
-                        anchors.leftMargin: 97
+                        width: 67
+                        anchors.leftMargin: 107
                         anchors.left: parent.left
                         Textinput {
-                            id: textinput6
-                            text: "25.2"
+                            id: txt_tempPV
+                            text: Cabin_Temp.q_temperature_sensor.toFixed(1)
                             font.pointSize: 14
                             borderColor: "orange"
                             Layout.fillWidth: true
@@ -212,8 +346,8 @@ Item {
                         }
 
                         Textinput {
-                            id: textinput7
-                            text: "35.2"
+                            id: txt_tempSV
+                            text: Cabin_Temp.q_setpointSP.toFixed(1)//"35.2"
                             font.pointSize: 14
                             borderColor: "orange"
                             Layout.fillWidth: true
@@ -232,7 +366,7 @@ Item {
                         x: -1
                         y: -3
                         width: 38
-                        anchors.leftMargin: 177
+                        anchors.leftMargin: 181
                         anchors.left: parent.left
                         Text {
                             id: element17
@@ -298,7 +432,7 @@ Item {
                         y: 0
                         width: 190
                         height: 180
-                        value: Cabin_Smoke.q_temperature
+                        value: Cabin_Temp.q_temperature
                         anchors.left: parent.left
                         anchors.leftMargin: -5
                         stepSize: 0
@@ -378,7 +512,7 @@ Item {
                         y: 0
                         width: 190
                         height: 180
-                        value: Cabin_Smoke.q_humidity
+                        value: CabinTemp.q_humidity
                         anchors.bottom: parent.bottom
                         anchors.bottomMargin: 0
                         z: 1
@@ -483,7 +617,7 @@ Item {
 
                         Textinput {
                             id: textinput4
-                            text: Cabin_Smoke.q_temperature.toFixed(1)
+                            text: Cabin_Temp.q_temperature.toFixed(1)
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                             readOnly: true
@@ -494,7 +628,7 @@ Item {
 
                         Textinput {
                             id: textinput5
-                            text: Cabin_Smoke.q_humidity.toFixed(1)
+                            text: Cabin_Temp.q_humidity.toFixed(1)
                             Layout.fillWidth: true
                             Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                             readOnly: true
@@ -591,11 +725,11 @@ Item {
                         //text: qsTr("BẮT ĐẦU")
                         anchors.verticalCenter: parent.verticalCenter
                         anchors.horizontalCenter: parent.horizontalCenter
-                        //checked: Cabin_Smoke.q_run_system_state
+                        //checked: Cabin_Temp.q_run_system_state
                         //
                         onClicked:
                         {
-                            Cabin_Smoke.writeStateRunSystem(!Cabin_Smoke.q_run_system_state)
+                            Cabin_Temp.writeStateRunSystem(!Cabin_Temp.q_run_system_state)
                         }
                     }
                 }
@@ -645,7 +779,7 @@ Item {
                         stepSize: 45
                         maximumValue: 315
                         value: 45
-                        onValueChanged: Cabin_Smoke.writeAngleStepMotor(parseInt(dial.value.toFixed(0)))
+                        onValueChanged: Cabin_Temp.writeAngleStepMotor(parseInt(dial.value.toFixed(0)))
                         style: DialStyle{
                             id: dialStyle
                             tickmarkLabel:
@@ -696,12 +830,14 @@ Item {
 
                 GroupBox {
                     id: grBox_CBKhoi
+                    height: 222
+                    anchors.right: parent.right
+                    anchors.left: parent.left
+                    anchors.top: parent.top
                     anchors.rightMargin: 249
-                    anchors.bottomMargin: 4
                     anchors.leftMargin: 5
                     anchors.topMargin: 4
                     //flat: false
-                    anchors.fill: parent
                     //title: qsTr("    Cảm biến: Đầu báo khói")
 
                     background: Rectangle {
@@ -718,7 +854,7 @@ Item {
                         y: 4
                         width: control.availableWidth
                         color: "#21be2b"
-                        text: "    Cảm biến: Đầu báo nhiệt 01"
+                        text: "    Đầu báo nhiệt 01"
                         font.underline: true
                         horizontalAlignment: Text.AlignLeft
                         elide: Text.ElideRight
@@ -761,7 +897,7 @@ Item {
                             y: 13
                             width: 71
                             height: 40
-                            text: Cabin_Smoke.q_volt_sensor_supply.toFixed(1)
+                            text: Cabin_Temp.q_volt_sensor_supply.toFixed(1)
                             font.pointSize: 14
                             anchors.horizontalCenter: parent.horizontalCenter
                             Layout.preferredHeight: 30
@@ -787,7 +923,7 @@ Item {
                             y: 82
                             width: 72
                             height: 40
-                            text: Cabin_Smoke.q_volt_sensor_respone.toFixed(2)
+                            text: Cabin_Temp.q_volt_sensor_respone.toFixed(2)
                             font.pointSize: 14
                             anchors.horizontalCenterOffset: 0
                             anchors.horizontalCenter: parent.horizontalCenter
@@ -827,7 +963,7 @@ Item {
                         }
 
                         StatusIndicator {
-                            id: statusIndicator2
+                            id: statusShort01
                             x: -1
                             y: 81
                             width: 45
@@ -871,7 +1007,7 @@ Item {
                         }
 
                         StatusIndicator {
-                            id: statusIndicator1
+                            id: statusAlarm01
                             x: 0
                             y: 11
                             width: 45
@@ -879,7 +1015,7 @@ Item {
                             color: "#00ff00"
                             anchors.horizontalCenterOffset: 0
                             anchors.horizontalCenter: parent.horizontalCenter
-                            active: Cabin_Smoke.q_output_alarm1_state
+                            active: Cabin_Temp.q_output_alarm1_state
                             Layout.preferredHeight: 55
                             Layout.preferredWidth: 55
                         }
@@ -907,11 +1043,11 @@ Item {
                         }
 
                         Textinput {
-                            id: textinput12
+                            id: txt_time_threshold01
                             x: 102
                             y: -7
                             width: 49
-                            height: 40
+                            height: 38
                             text: "00"
                             font.pointSize: 14
                             anchors.verticalCenter: parent.verticalCenter
@@ -923,21 +1059,21 @@ Item {
 
                         Label {
                             id: label7
-                            x: -6
+                            x: -5
                             y: -3
                             width: 103
                             height: 19
                             color: "#025ade"
-                            text: qsTr("Thời gian \nVượt ngưỡng:")
+                            text: qsTr("Thời gian \nVượt ngưỡng")
                             horizontalAlignment: Text.AlignHCenter
-                            anchors.verticalCenterOffset: -9
+                            anchors.verticalCenterOffset: -8
                             anchors.verticalCenter: parent.verticalCenter
-                            font.pointSize: 12
+                            font.pointSize: 11
                         }
 
                         Label {
                             id: label8
-                            x: 158
+                            x: 156
                             y: 5
                             width: 45
                             height: 19
@@ -955,9 +1091,12 @@ Item {
                     id: grBox_CBKhoi1
                     x: 9
                     y: -6
+                    anchors.bottom: grBox_CBKhoi.bottom
+                    anchors.bottomMargin: 0
+                    anchors.right: parent.right
+                    anchors.left: parent.left
+                    anchors.top: parent.top
                     anchors.leftMargin: 250
-                    anchors.fill: parent
-                    anchors.bottomMargin: 4
                     GroupBox {
                         id: grBox_Volt_Ample1
                         anchors.leftMargin: -2
@@ -981,7 +1120,7 @@ Item {
                             y: 13
                             width: 71
                             height: 40
-                            text: Cabin_Smoke.q_volt_sensor_supply.toFixed(1)
+                            text: Cabin_Temp.q_volt_sensor_supply.toFixed(1)
                             font.pointSize: 14
                             anchors.horizontalCenter: parent.horizontalCenter
                             borderColor: "orange"
@@ -1007,7 +1146,7 @@ Item {
                             y: 82
                             width: 72
                             height: 40
-                            text: Cabin_Smoke.q_volt_sensor_respone.toFixed(2)
+                            text: Cabin_Temp.q_volt_sensor_respone.toFixed(2)
                             font.pointSize: 14
                             anchors.horizontalCenter: parent.horizontalCenter
                             borderColor: "orange"
@@ -1040,7 +1179,7 @@ Item {
                         anchors.top: parent.top
                         anchors.bottomMargin: 43
                         StatusIndicator {
-                            id: statusIndicator3
+                            id: statusShort02
                             x: -1
                             y: 81
                             width: 45
@@ -1084,7 +1223,7 @@ Item {
                         }
 
                         StatusIndicator {
-                            id: statusIndicator4
+                            id: statusAlarm02
                             x: 0
                             y: 11
                             width: 45
@@ -1092,7 +1231,7 @@ Item {
                             color: "#00ff00"
                             anchors.horizontalCenter: parent.horizontalCenter
                             Layout.preferredHeight: 55
-                            active: Cabin_Smoke.q_output_alarm1_state
+                            active: Cabin_Temp.q_output_alarm1_state
                             Layout.preferredWidth: 55
                             anchors.horizontalCenterOffset: 0
                         }
@@ -1118,11 +1257,11 @@ Item {
                         anchors.top: parent.top
                         anchors.bottomMargin: -6
                         Textinput {
-                            id: textinput13
+                            id: txt_time_threshold02
                             x: 102
                             y: -7
                             width: 49
-                            height: 40
+                            height: 38
                             text: "00"
                             borderColor: "orange"
                             anchors.verticalCenter: parent.verticalCenter
@@ -1134,21 +1273,21 @@ Item {
 
                         Label {
                             id: label9
-                            x: -6
+                            x: -5
                             y: -3
                             width: 103
                             height: 19
                             color: "#025ade"
-                            text: qsTr("Thời gian \nVượt ngưỡng:")
+                            text: qsTr("Thời gian \nVượt ngưỡng")
                             anchors.verticalCenter: parent.verticalCenter
                             anchors.verticalCenterOffset: -9
-                            font.pointSize: 12
+                            font.pointSize: 11
                             horizontalAlignment: Text.AlignHCenter
                         }
 
                         Label {
                             id: label10
-                            x: 158
+                            x: 155
                             y: 5
                             width: 45
                             height: 19
@@ -1186,7 +1325,7 @@ Item {
                         y: 4
                         width: control.availableWidth
                         color: "#21be2b"
-                        text: "    Cảm biến: Đầu báo nhiệt 02"
+                        text: "    Đầu báo nhiệt 02"
                         font.underline: true
                         horizontalAlignment: Text.AlignLeft
                         elide: Text.ElideRight
@@ -1210,6 +1349,10 @@ Item {
 
                 ChartView {
                     id: spline
+                    anchors.rightMargin: 0
+                    anchors.bottomMargin: 0
+                    anchors.leftMargin: 0
+                    anchors.topMargin: 0
                     anchors.fill: parent
                     ValueAxis {
                         id: axisY
@@ -1217,7 +1360,7 @@ Item {
                         min: -2
                         gridVisible: true
                         labelFormat: "%.0f"
-                        max: 30 //> nguong.
+                        max: 100 //> nguong.
                         labelsColor: "#000000"
                     }
 
@@ -1242,19 +1385,35 @@ Item {
                     LineSeries {
                         id: lineSeries1
                         name: "Đầu báo 02"
-                        color: "orange"
+                        color: "green" //#c69b07"//"yellow" //"#c714f4"
                         axisX: axisX
                         axisY: axisY
                     }
                     LineSeries {
                         id: lineSeries2
-                        name: "Ngưỡng nhiệt độ"
+                        name: "Ngưỡng nhiệt"
                         color: "blue"
                         axisX: axisX
                         axisY: axisY
                     }
                 }
             }
+        }
+
+        StackView {
+            id: stack4
+            x: 532
+            y: 232
+            width: 185
+            height: 70
+        }
+
+        StackView {
+            id: stack5
+            x: 794
+            y: 232
+            width: 185
+            height: 70
         }
 
 
@@ -1922,9 +2081,90 @@ Item {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /*##^## Designer {
-    D{i:0;autoSize:true;height:480;width:1024}D{i:70;anchors_x:10}D{i:72;anchors_x:12}
-D{i:79;anchors_height:38;anchors_width:200;anchors_x:0;anchors_y:139}D{i:87;anchors_x:10}
-D{i:89;anchors_x:12}D{i:97;anchors_height:38;anchors_width:200;anchors_x:0;anchors_y:139}
+    D{i:0;autoSize:true;height:480;width:1024}
 }
  ##^##*/
