@@ -18,6 +18,8 @@ class Cabin_Smoke : public QObject, BaseObject
     Q_PROPERTY(float q_humidity READ getHumidity  NOTIFY varChanged)
     //angle Motor Step
     Q_PROPERTY(int q_angleStepMotor READ getAngleStepMotor WRITE setAngleStepMotor NOTIFY varChanged)
+    Q_PROPERTY(int q_time_reponse READ getTimeReponse WRITE setTimeReponse NOTIFY varChanged)
+
     //Q_PROPERTY(int q_angleStepMotor READ getAngleStepMotor NOTIFY varAngleChanged)
 
     Q_PROPERTY(bool q_start_led_state READ getStartButton  NOTIFY stateChanged)
@@ -37,6 +39,10 @@ class Cabin_Smoke : public QObject, BaseObject
     //Threshold
     Q_PROPERTY(float threshold_baokhoi READ getThreshold_baokhoi WRITE setThreshold_baokhoi NOTIFY varThresholdChanged)
     Q_PROPERTY(float threshold_chapmach READ getThreshold_chapmach WRITE setThreshold_chapmach NOTIFY varThresholdChanged)
+    //
+    Q_PROPERTY(float threshold_baokhoi READ getThreshold_baokhoi  NOTIFY varThresholdChanged1)
+    Q_PROPERTY(float threshold_chapmach READ getThreshold_chapmach NOTIFY varThresholdChanged1)
+    //
     Q_PROPERTY(float threshold_matdokhoi READ getThreshold_matdokhoi WRITE setThreshold_matdokhoi NOTIFY varThresholdChanged)
     Q_PROPERTY(float threshold_timeout READ getThreshold_timeout WRITE setThreshold_timeout NOTIFY varThresholdChanged)
 
@@ -84,8 +90,18 @@ public:
     Q_INVOKABLE void readAllStateOutput();
     // Save Threshold
     Q_INVOKABLE void writeSaveThreshold(float value);
-    float getThreshold_baokhoi(){return settings->thresholdCabinSmoke.getThreshold_baokhoi();}
-    float getThreshold_chapmach(){return settings->thresholdCabinSmoke.getThreshold_chapmach();}
+    //
+    //float getThreshold_baokhoi(){return settings->thresholdCabinSmoke.getThreshold_baokhoi();}
+    //float getThreshold_chapmach(){return settings->thresholdCabinSmoke.getThreshold_chapmach();}
+    //normalCurrent = m_cabinTemp->getVolt_Sensor_Supply()/5.390; //voltSupplySensor
+    //shortageCurrent = m_cabinTemp->getVolt_Sensor_Supply()/0.69;
+    float getThreshold_baokhoi() {return voltSupplySensor/5.390 + 5.0;}
+    float getThreshold_chapmach() {
+        float temp = voltSupplySensor/0.69 - 10.0;
+        if (temp < 5.0) temp = 5.0;
+        return temp;
+    }
+
     float getThreshold_matdokhoi(){return settings->thresholdCabinSmoke.getThreshold_matdokhoi();}
     int   getThreshold_timeout(){return settings->thresholdCabinSmoke.getThreshold_timeout();}
 
@@ -97,6 +113,8 @@ public:
     bool getIsTimeOut() {return bIsTimeOut; }
     void setIsTimeOut(bool value) {bIsTimeOut = value; }
 
+    int getTimeReponse() {return time_reponse;}
+    void setTimeReponse(int value) {time_reponse = value;}
     //
     void readHoldingCompleted();
     void readSingleHoldingCompleted();
@@ -112,6 +130,7 @@ signals:
     void stateOuputChanged();
     void varAngleChanged();
     void varThresholdChanged();
+    void varThresholdChanged1();
 
 public slots:
 
@@ -143,6 +162,8 @@ private:
     float currentSensorSmoke = 0.0;
     //
     bool bIsTimeOut = false;
+    //
+    int time_reponse = 0.0;
 };
 
 #endif // CABIN_SMOKE_HPP

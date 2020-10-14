@@ -54,7 +54,7 @@ Item {
             Connections {
                 target: QLogin
                 onLoginSuccess: {
-                    //stack.push("CabinSmoke_MainWindow.qml")
+                    stack.push("CabinSmoke_MainWindow.qml")
                     //stack.push("CabinTemp_MainWindow.qml")
                 }
                 onLoginFailed: {
@@ -65,8 +65,8 @@ Item {
 
             Component.onCompleted: {
                 if (QLogin.logged()){
-                    //stack.push("CabinSmoke_MainWindow.qml")
-                    stack.push("CabinTemp_MainWindow.qml")
+                    stack.push("CabinSmoke_MainWindow.qml")
+                    //stack.push("CabinTemp_MainWindow.qml")
                 }
             }
 

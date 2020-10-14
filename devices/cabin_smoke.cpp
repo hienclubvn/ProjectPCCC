@@ -140,11 +140,12 @@ void Cabin_Smoke::ReadICPCompleted()
     currentSensorSmoke = cabin_rs485->dataFloat[3]*1000/227.5;
 
     emit varChanged();
+    emit varThresholdChanged1();
 }
 //-------RS232 --------
 void Cabin_Smoke::densityReadCompleted()
 {
-    density_smoke = smoke_uart->density_smoke;
+    density_smoke = smoke_uart->density_smoke/10.0;
     emit varChanged();
 }
 //----------SAVE-- Data --

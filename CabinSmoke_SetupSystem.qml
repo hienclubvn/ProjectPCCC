@@ -95,6 +95,7 @@ Item {
                     width: 175
                     height: 60
                     text: Cabin_Smoke.threshold_baokhoi.toFixed(2)
+                    readOnly: true
                     anchors.horizontalCenterOffset: 0
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pointSize: 30
@@ -128,6 +129,7 @@ Item {
                     y: 142
                     height: 60
                     text: Cabin_Smoke.threshold_chapmach.toFixed(2)
+                    readOnly: true
                     anchors.verticalCenterOffset: 11
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.horizontalCenterOffset: 0
@@ -286,6 +288,8 @@ Item {
         }
     }
 }
+
+
 
 
 

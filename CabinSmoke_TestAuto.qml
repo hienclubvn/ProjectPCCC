@@ -55,46 +55,38 @@ Item {
                     axisX.min = axisX.max;
                     axisX.max = axisX.min + 60;
                 }
-                //check Thresholds
-                if (Cabin_Smoke.q_density_smoke >= Cabin_Smoke.threshold_matdokhoi)//parseFloat(nguong_matdo.text))
-                {
-                    bIsThresholdDensity = true;
-                }
-                else {
-                    bIsThresholdDensity = false;
-                    stack3.clear()
-                }
-                if (bIsThresholdDensity) {
-                    if (Cabin_Smoke.q_volt_sensor_respone >= Cabin_Smoke.threshold_baokhoi) //nguong_baokhoi
-                    {
-                        //statusBaoChay.active = true;
-                        //statusBaoChay.active = !statusBaoChay.active;
-                        Cabin_Smoke.writeAlarm(0,true);
-                        bIsAlarm = true;
-                        //
-                        stack3.clear()
-                        stack3.push("CabinSmoke_Result.qml")
-
-                    }
-                    else {
-                        Cabin_Smoke.writeAlarm(0,false);
-                        statusBaoChay.active = false;
-                        bIsAlarm = false;
-                        stack3.clear()
-                    }
-                }
-                //
-                //if (Cabin_Smoke.q_density_smoke >= parseFloat(nguong_matdo.text)){
-                //    statusChapMach.active = true;
-                //}
             }
             else {  //if Cabin_Smoke.q_run_system_state
                 bIsRun = false; //reset
-                bIsAlarm = false;
-                Cabin_Smoke.writeAlarm(0,false);
-                statusBaoChay.active = false;
-                if (!bTimeOut) stack3.clear()
             }
+            //none
+            if (Cabin_Smoke.q_volt_sensor_respone >= Cabin_Smoke.threshold_baokhoi) //nguong_baokhoi
+            {
+                //if (bIsAlarm == false)
+                {
+                    bIsAlarm = true;
+                    Cabin_Smoke.writeAlarm(0,bIsAlarm);
+                    statusBaoChay.active = bIsAlarm;
+                }
+            }
+            else {
+                //if (bIsAlarm == true)
+                {
+                    bIsAlarm = false;
+                    Cabin_Smoke.writeAlarm(0,bIsAlarm);
+                    statusBaoChay.active = bIsAlarm;
+                }
+                Cabin_Smoke.writeAlarm(0,false);
+            }
+            //
+            if (Cabin_Smoke.q_volt_sensor_respone >= Cabin_Smoke.threshold_chapmach)
+            {
+                statusChapMach.active = true;
+            }
+            else {
+                statusChapMach.active = false;
+            }
+            //
         }
     }
     //
@@ -120,6 +112,11 @@ Item {
                 }
                 txtSeconds.text = (nCountTime % 60).toFixed(0)
                 txtMinutes.text = Math.floor((nCountTime / 60)).toFixed(0)
+                //
+                if (Cabin_Smoke.q_density_smoke >= Cabin_Smoke.threshold_matdokhoi)
+                    bIsThresholdDensity = true;
+                else bIsThresholdDensity = false;
+                //
                 if (bIsThresholdDensity & !bIsAlarm) //bIsAlarm =true, thi` dung dem time.
                     nCountTime++;
                 if (nCountTime > parseInt(txtTimeOut.text)) bTimeOut = true;
@@ -128,10 +125,16 @@ Item {
                 if (bTimeOut){
                     Cabin_Smoke.writeStateRunSystem(false);
                 }
+                //OK
+                if (bIsThresholdDensity & bIsAlarm) {
+                    stack3.clear()
+                    stack3.push("CabinSmoke_Result.qml")
+                }
             }
             else { //reset
                 if (nCountTime > 0) bIsRunED = true;
                 bIsAlarm = false;
+                if (!bTimeOut) stack3.clear()
             }
             //
             if (bTimeOut){
@@ -140,6 +143,7 @@ Item {
             }
             //
             Cabin_Smoke.q_bIsTimeOut = bTimeOut;
+            Cabin_Smoke.q_time_reponse = nCountTime;
         }
     } //end-Timer
     //
@@ -1227,6 +1231,60 @@ Item {
     }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
